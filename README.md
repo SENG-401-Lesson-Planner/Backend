@@ -1,3 +1,1 @@
-run:
-npm install
-node backend.js
+npm install then node backend.js
