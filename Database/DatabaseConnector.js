@@ -78,7 +78,7 @@ const DatabaseConnector = {
 
     addNewUserToDatabase(username, password, callback) {
         this.hashPassword(password).then((hash) => {
-            const query = 'INSERT INTO Users (username, password) VALUES (?, ?)';
+            const query = 'INSERT INTO Users (username, password_hash) VALUES (?, ?)';
             connection.query(query, [username, hash], (err, results) => {
                 if (err) {
                     console.error('Error adding user to database:', err.stack);
