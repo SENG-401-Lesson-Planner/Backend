@@ -20,28 +20,28 @@ app.post('/chat', async (req, res) => {
 
 app.post('/register', async (req, res) => {
     const { username, password } = req.body;
-    DatabaseConnector.addNewUserToDatabase(username, password, (err, results) => {
+    DatabaseConnector.addNewUserToDatabase(username, password, (err, access_token) => {
         if (err) {
-            res.status(500).send('Error registering user');
+            res.status(500).send(`Error registering user ${username}`);
             return;
         }
-        res.send('User registered successfully');
+        console.log(`User "${username}" registered successfully.`);
+        res.send(access_token);
     });
 });
 
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
-    DatabaseConnector.loginToDatabase(username, password, (err, user) => {
+    DatabaseConnector.loginToDatabase(username, password, (err, access_token) => {
         if (err) {
             res.status(500).send('Error logging in');
             return;
-        }
-        if (!user) {
+        } else if (access_token === null) {
             res.status(401).send('Invalid username or password');
             return;
         }
-        const token = DatabaseConnector.generateToken(user);
-        res.send(token);
+        console.log(`User "${username}" logged in successfully.`);
+        res.send(access_token)
     });
 });
 
@@ -80,6 +80,17 @@ app.post('/response', async (req, res) => {
         });
     });
 }); 
+
+app.post('/username', async (req, res) => {
+    const { jwtToken } = req.body;
+    DatabaseConnector.verifyToken(jwtToken, (err, decoded) => {
+        if (err) {
+            res.status(401).send('Invalid token');
+            return;
+        }
+        res.send(decoded.username);
+    });
+});
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);

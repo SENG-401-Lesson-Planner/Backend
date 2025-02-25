@@ -61,8 +61,8 @@ const DatabaseConnector = {
         });
     },
 
-    generateToken(user) {
-        const payload = { id: user.id, username: user.username };
+    generateToken(username, hashed_password) {
+        const payload = { username: username, password: hashed_password };
         return jwt.sign(payload, JWT_SECRET);
     },
 
@@ -85,7 +85,8 @@ const DatabaseConnector = {
                     callback(err, null);
                     return;
                 }
-                callback(null, results);
+                const token = this.generateToken(username, hash);
+                callback(null, token);
             });
         });
     },
@@ -103,9 +104,10 @@ const DatabaseConnector = {
                 return;
             }
             const user = results[0];
-            const passwordMatch = await this.comparePassword(password, user.password);
+            const passwordMatch = await this.comparePassword(password, user.password_hash);
             if (passwordMatch) {
-                callback(null, user);
+                const token = this.generateToken(username, user.password);
+                callback(null, token);
             } else {
                 callback(null, null);
             }
@@ -135,7 +137,7 @@ const DatabaseConnector = {
             callback(null, results);
         });
     }
-
+    
 };
 
 export default DatabaseConnector;
