@@ -4,6 +4,7 @@ import DatabaseConnector from './Database/DatabaseConnector.js';
 
 const app = express();
 const port = 3000;
+const GPTmodel = "gpt-4o-mini";
 
 app.use(express.json());
 
@@ -11,13 +12,15 @@ app.get('/', (_, res) => {
     res.send('Hello World!');
 });
 
+// ALL GPT ENDPOINTS
 app.post('/chat', async (req, res) => {
     const { message } = req.body;
-    const model = "gpt-4o-mini";
+    const model = GPTmodel;
     const stream = await ChatGPTConnector.GPTstreamingRequest(message, model);
     res.send(stream);
 });
 
+// ALL DATABASE AND ACCOUNT ENDPOINTS
 app.post('/register', async (req, res) => {
     const { username, password } = req.body;
     DatabaseConnector.addNewUserToDatabase(username, password, (err, access_token) => {
@@ -46,14 +49,14 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/responsehistory', async (req, res) => {
-    const { jwtToken } = req.body;
-    DatabaseConnector.verifyToken(jwtToken, (err, decoded) => {
+    const { authentication } = req.body;
+    DatabaseConnector.verifyToken(authentication, (err, decoded) => {
         if (err) {
             res.status(401).send('Invalid token');
             return;
         }
-        const { id } = decoded;
-        DatabaseConnector.getChatHistory(id, (err, results) => {
+        const user_id = decoded.id;
+        DatabaseConnector.getReponseHistoryFromUser(user_id, (err, results) => {
             if (err) {
                 res.status(500).send('Error getting chat history');
                 return;
@@ -64,13 +67,13 @@ app.get('/responsehistory', async (req, res) => {
 });
 
 app.post('/response', async (req, res) => {
-    const { jwtToken, response } = req.body;
-    DatabaseConnector.verifyToken(jwtToken, (err, decoded) => {
+    const { authentication, response } = req.body;
+    DatabaseConnector.verifyToken(authentication, (err, decoded) => {
         if (err) {
             res.status(401).send('Invalid token');
             return;
         }
-        const { id } = decoded;
+        const id = decoded.id;
         DatabaseConnector.addResponseToDatabase(id, response, (err, results) => {
             if (err) {
                 res.status(500).send('Error adding response');
@@ -81,9 +84,9 @@ app.post('/response', async (req, res) => {
     });
 }); 
 
-app.post('/username', async (req, res) => {
-    const { jwtToken } = req.body;
-    DatabaseConnector.verifyToken(jwtToken, (err, decoded) => {
+app.post('/isloggedin', async (req, res) => {
+    const { authentication } = req.body;
+    DatabaseConnector.verifyToken(authentication, (err, decoded) => {
         if (err) {
             res.status(401).send('Invalid token');
             return;

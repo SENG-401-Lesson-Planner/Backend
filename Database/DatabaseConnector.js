@@ -63,7 +63,8 @@ const DatabaseConnector = {
 
     generateToken(username, hashed_password) {
         const payload = { username: username, password: hashed_password };
-        return jwt.sign(payload, JWT_SECRET);
+        const options = { expiresIn: '24h' };
+        return jwt.sign(payload, JWT_SECRET, options);
     },
 
     verifyToken(token, callback) {
@@ -114,9 +115,9 @@ const DatabaseConnector = {
         });
     },
 
-    getReponseHistoryFromUser(username, callback) {
-        const query = 'SELECT * FROM Responses WHERE username = ?';
-        connection.query(query, [username], (err, results) => {
+    getReponseHistoryFromUser(user_id, callback) {
+        const query = 'SELECT * FROM Responses WHERE user_id = ?';
+        connection.query(query, [user_id], (err, results) => {
             if (err) {
                 console.error('Error getting response history:', err.stack);
                 callback(err, null);
