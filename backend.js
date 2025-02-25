@@ -5,16 +5,17 @@ import DatabaseConnector from './Database/DatabaseConnector.js';
 const app = express();
 const port = 3000;
 const GPTmodel = "gpt-4o-mini";
+DatabaseConnector.connectToDatabase();
 
 app.use(express.json());
-
-app.get('/', (_, res) => {
-    res.send('Hello World!');
-});
 
 // ALL GPT ENDPOINTS
 app.post('/chat', async (req, res) => {
     const { message } = req.body;
+    if (!message) {
+        res.status(400).send('No message provided');
+        return;
+    }
     const model = GPTmodel;
     const stream = await ChatGPTConnector.GPTstreamingRequest(message, model);
     res.send(stream);
@@ -23,6 +24,10 @@ app.post('/chat', async (req, res) => {
 // ALL DATABASE AND ACCOUNT ENDPOINTS
 app.post('/register', async (req, res) => {
     const { username, password } = req.body;
+    if (!username || !password) {
+        res.status(400).send('Username or password not provided');
+        return;
+    }
     DatabaseConnector.addNewUserToDatabase(username, password, (err, access_token) => {
         if (err) {
             res.status(500).send(`Error registering user ${username}`);
@@ -35,6 +40,10 @@ app.post('/register', async (req, res) => {
 
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
+    if (!username || !password) {
+        res.status(400).send('Username or password not provided');
+        return;
+    }
     DatabaseConnector.loginToDatabase(username, password, (err, access_token) => {
         if (err) {
             res.status(500).send('Error logging in');
@@ -50,6 +59,10 @@ app.post('/login', async (req, res) => {
 
 app.get('/responsehistory', async (req, res) => {
     const { authentication } = req.body;
+    if (!authentication) {
+        res.status(400).send('No authentication token provided');
+        return;
+    }
     DatabaseConnector.verifyToken(authentication, (err, decoded) => {
         if (err) {
             res.status(401).send('Invalid token');
@@ -68,6 +81,10 @@ app.get('/responsehistory', async (req, res) => {
 
 app.post('/response', async (req, res) => {
     const { authentication, response } = req.body;
+    if (!authentication) {
+        res.status(400).send('No authentication token provided');
+        return;
+    }
     DatabaseConnector.verifyToken(authentication, (err, decoded) => {
         if (err) {
             res.status(401).send('Invalid token');
@@ -86,6 +103,10 @@ app.post('/response', async (req, res) => {
 
 app.post('/isloggedin', async (req, res) => {
     const { authentication } = req.body;
+    if (!authentication) {
+        res.status(400).send('No authentication token provided');
+        return;
+    }
     DatabaseConnector.verifyToken(authentication, (err, decoded) => {
         if (err) {
             res.status(401).send('Invalid token');
