@@ -13,14 +13,18 @@ const openai = new OpenAI({
     apiKey: openapi_apiKey,
 });
 
-export async function GPTstreamingRequest(message, model) {
-    const stream = await openai.chat.completions.create({
-        model: model,
-        messages: [{ role: "user", content: message }],
-        store: true,
-        stream: true,
-    });
-    for await (const chunk of stream) {
-        return chunk.choices[0]?.delta?.content || "";
+const ChatGPTConnector = {
+    async GPTstreamingRequest(message, model) {
+        const stream = await openai.chat.completions.create({
+            model: model,
+            messages: [{ role: "user", content: message }],
+            store: true,
+            stream: true,
+        });
+        for await (const chunk of stream) {
+            return chunk.choices[0]?.delta?.content || "";
+        }
     }
-}
+};
+
+export default ChatGPTConnector;
