@@ -81,7 +81,6 @@ app.get('/responsehistory', async (req, res) => {
 
 app.post('/response', async (req, res) => {
     const { authentication } = req.headers;
-    console.log(req.headers);
     const { response } = req.body;
     if (!authentication) {
         res.status(400).send('No authentication token provided');
