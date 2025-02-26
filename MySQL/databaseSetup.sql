@@ -9,10 +9,10 @@ CREATE TABLE IF NOT EXISTS Users (
 
 CREATE TABLE IF NOT EXISTS Responses (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    response TEXT,
+    username VARCHAR(255) NOT NULL,
+    response TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES Users(id)
+    FOREIGN KEY (username) REFERENCES Users(username)
 );
 
 CREATE USER IF NOT EXISTS 'REDACTED'@'localhost' IDENTIFIED WITH mysql_native_password BY 'REDACTED';

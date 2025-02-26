@@ -115,9 +115,9 @@ const DatabaseConnector = {
         });
     },
 
-    getReponseHistoryFromUser(user_id, callback) {
-        const query = 'SELECT * FROM Responses WHERE user_id = ?';
-        connection.query(query, [user_id], (err, results) => {
+    getReponseHistoryFromUser(username, callback) {
+        const query = 'SELECT response, created_at FROM Responses WHERE username = ?';
+        connection.query(query, [username], (err, results) => {
             if (err) {
                 console.error('Error getting response history:', err.stack);
                 callback(err, null);
@@ -127,9 +127,9 @@ const DatabaseConnector = {
         });
     },
 
-    addResponseToDatabase(id, response, callback) {
-        const query = 'INSERT INTO Responses (user_id, response) VALUES (?, ?)';
-        connection.query(query, [id, response], (err, results) => {
+    addResponseToDatabase(username, response, callback) {
+        const query = 'INSERT INTO Responses (username, response) VALUES (?, ?)';
+        connection.query(query, [username, response], (err, results) => {
             if (err) {
                 console.error('Error adding response to database:', err.stack);
                 callback(err, null);

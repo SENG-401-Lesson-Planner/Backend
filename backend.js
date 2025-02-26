@@ -58,7 +58,7 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/responsehistory', async (req, res) => {
-    const { authentication } = req.body;
+    const { authentication } = req.headers;
     if (!authentication) {
         res.status(400).send('No authentication token provided');
         return;
@@ -68,8 +68,8 @@ app.get('/responsehistory', async (req, res) => {
             res.status(401).send('Invalid token');
             return;
         }
-        const user_id = decoded.id;
-        DatabaseConnector.getReponseHistoryFromUser(user_id, (err, results) => {
+        const username = decoded.username;
+        DatabaseConnector.getReponseHistoryFromUser(username, (err, results) => {
             if (err) {
                 res.status(500).send('Error getting chat history');
                 return;
@@ -80,7 +80,9 @@ app.get('/responsehistory', async (req, res) => {
 });
 
 app.post('/response', async (req, res) => {
-    const { authentication, response } = req.body;
+    const { authentication } = req.headers;
+    console.log(req.headers);
+    const { response } = req.body;
     if (!authentication) {
         res.status(400).send('No authentication token provided');
         return;
@@ -90,8 +92,8 @@ app.post('/response', async (req, res) => {
             res.status(401).send('Invalid token');
             return;
         }
-        const id = decoded.id;
-        DatabaseConnector.addResponseToDatabase(id, response, (err, results) => {
+        const username = decoded.username;
+        DatabaseConnector.addResponseToDatabase(username, response, (err, results) => {
             if (err) {
                 res.status(500).send('Error adding response');
                 return;
@@ -102,7 +104,7 @@ app.post('/response', async (req, res) => {
 }); 
 
 app.post('/isloggedin', async (req, res) => {
-    const { authentication } = req.body;
+    const { authentication } = req.headers;
     if (!authentication) {
         res.status(400).send('No authentication token provided');
         return;
