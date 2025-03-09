@@ -5,7 +5,6 @@ import GPTPreprompt from './LLM/GPTPreprompt.js';
 
 const app = express();
 const port = 3000;
-const GPTmodel = "gpt-4o-mini";
 DatabaseConnector.connectToDatabase();
 
 app.use(express.json());
@@ -17,11 +16,19 @@ app.post('/LLM/chat', async (req, res) => {
         res.status(400).send('No message or grade level prompt provided');
         return;
     }
+
+    if (!Object.keys(GPTPreprompt).includes(GradeLevelPrompt)) {
+        res.status(400).send('Invalid grade level prompt');
+        return;
+    }
+
+    res.setHeader('Content-Type', 'text/plain');
     
-    const gptRequestMessage = `${GPTPreprompt[GradeLevelPrompt]}\n ${message}`; // Add the grade level prompt to the message
-    const model = GPTmodel;
-    const stream = await ChatGPTConnector.GPTstreamingRequest(gptRequestMessage, model);
-    res.send(stream);
+    for await (const stream of ChatGPTConnector.GPTstreamingRequest(message, GradeLevelPrompt)) {
+        res.write(stream);
+    }
+    
+    res.end();
 });
 
 // ALL DATABASE AND ACCOUNT ENDPOINTS
