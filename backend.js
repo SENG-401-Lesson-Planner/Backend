@@ -1,6 +1,7 @@
 import express from 'express';
 import ChatGPTConnector from './LLM/ChatGPTConnector.js';
 import DatabaseConnector from './Database/DatabaseConnector.js';
+import GPTPreprompt from './LLM/GPTPreprompt.js';
 
 const app = express();
 const port = 3000;
@@ -10,19 +11,21 @@ DatabaseConnector.connectToDatabase();
 app.use(express.json());
 
 // ALL GPT ENDPOINTS
-app.post('/chat', async (req, res) => {
-    const { message } = req.body;
-    if (!message) {
-        res.status(400).send('No message provided');
+app.post('/LLM/chat', async (req, res) => {
+    const { message, GradeLevelPrompt } = req.body;
+    if (!message || !GradeLevelPrompt) {
+        res.status(400).send('No message or grade level prompt provided');
         return;
     }
+    
+    const gptRequestMessage = `${GPTPreprompt[GradeLevelPrompt]} ${message}`; // Add the grade level prompt to the message
     const model = GPTmodel;
-    const stream = await ChatGPTConnector.GPTstreamingRequest(message, model);
+    const stream = await ChatGPTConnector.GPTstreamingRequest(gptRequestMessage, model);
     res.send(stream);
 });
 
 // ALL DATABASE AND ACCOUNT ENDPOINTS
-app.post('/register', async (req, res) => {
+app.post('/account/register', async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) {
         res.status(400).send('Username or password not provided');
@@ -34,11 +37,11 @@ app.post('/register', async (req, res) => {
             return;
         }
         console.log(`User "${username}" registered successfully.`);
-        res.send(access_token);
+        res.status(200).send(access_token);
     });
 });
 
-app.post('/login', async (req, res) => {
+app.post('/account/login', async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) {
         res.status(400).send('Username or password not provided');
@@ -53,11 +56,11 @@ app.post('/login', async (req, res) => {
             return;
         }
         console.log(`User "${username}" logged in successfully.`);
-        res.send(access_token)
+        res.status(200).send(access_token)
     });
 });
 
-app.get('/responsehistory', async (req, res) => {
+app.get('/account/responsehistory', async (req, res) => {
     const { authentication } = req.headers;
     if (!authentication) {
         res.status(400).send('No authentication token provided');
@@ -74,12 +77,12 @@ app.get('/responsehistory', async (req, res) => {
                 res.status(500).send('Error getting chat history');
                 return;
             }
-            res.send(results);
+            res.status(200).send(results);
         });
     });
 });
 
-app.post('/response', async (req, res) => {
+app.post('/account/addresponse', async (req, res) => {
     const { authentication } = req.headers;
     const { response } = req.body;
     if (!authentication) {
@@ -97,12 +100,35 @@ app.post('/response', async (req, res) => {
                 res.status(500).send('Error adding response');
                 return;
             }
-            res.send('Response added successfully');
+            res.status(200).send('Response added successfully');
         });
     });
 }); 
 
-app.post('/isloggedin', async (req, res) => {
+app.delete('/account/removereponse', async (req, res) => {
+    const { authentication } = req.headers;
+    const { response } = req.body;
+    if (!authentication) {
+        res.status(400).send('No authentication token provided');
+        return;
+    }
+    DatabaseConnector.verifyToken(authentication, (err, decoded) => {
+        if (err) {
+            res.status(401).send('Invalid token');
+            return;
+        }
+        const username = decoded.username;
+        DatabaseConnector.removeResponseFromDatabase(username, response, (err, results) => {
+            if (err) {
+                res.status(500).send('Error removing response');
+                return;
+            }
+            res.status(200).send('Response removed successfully');
+        });
+    });
+});
+
+app.post('/account/isloggedin', async (req, res) => {
     const { authentication } = req.headers;
     if (!authentication) {
         res.status(400).send('No authentication token provided');
@@ -113,7 +139,7 @@ app.post('/isloggedin', async (req, res) => {
             res.status(401).send('Invalid token');
             return;
         }
-        res.send(decoded.username);
+        res.status(200).send(decoded.username);
     });
 });
 

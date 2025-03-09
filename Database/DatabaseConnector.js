@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 
 dotenv.config();
 
+// Load environment variables
 const DB_HOST = process.env.DB_HOST;
 const DB_USER = process.env.DB_USER;
 const DB_PASSWORD = process.env.DB_PASSWORD;
@@ -137,8 +138,19 @@ const DatabaseConnector = {
             }
             callback(null, results);
         });
+    },
+
+    removeResponseFromDatabase(username, response, callback) {
+        const query = 'DELETE FROM Responses WHERE username = ? AND response = ?';
+        connection.query(query, [username, response], (err, results) => {
+            if (err) {
+                console.error('Error removing response from database:', err.stack);
+                callback(err, null);
+                return;
+            }
+            callback(null, results);
+        });
     }
-    
 };
 
 export default DatabaseConnector;

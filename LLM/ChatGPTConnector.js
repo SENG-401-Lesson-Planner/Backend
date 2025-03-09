@@ -18,7 +18,7 @@ const ChatGPTConnector = {
         const stream = await openai.chat.completions.create({
             model: model,
             messages: [{ role: "user", content: message }],
-            store: true,
+            store: true, // By setting store to true, we can later tweak our model based on the feedback we receive
             stream: true,
         });
         for await (const chunk of stream) {
