@@ -18,7 +18,7 @@ app.post('/LLM/chat', async (req, res) => {
         return;
     }
     
-    const gptRequestMessage = `${GPTPreprompt[GradeLevelPrompt]} ${message}`; // Add the grade level prompt to the message
+    const gptRequestMessage = `${GPTPreprompt[GradeLevelPrompt]}\n ${message}`; // Add the grade level prompt to the message
     const model = GPTmodel;
     const stream = await ChatGPTConnector.GPTstreamingRequest(gptRequestMessage, model);
     res.send(stream);
