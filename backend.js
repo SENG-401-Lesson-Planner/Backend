@@ -55,6 +55,15 @@ app.post('/account/register', async (req, res) => {
         res.status(400).send('Username or password not provided');
         return;
     }
+    
+    if (username.length < 4 || password.length < 4) {
+        res.status(400).send('Username and password must be at least 4 characters long');
+        return;
+    } else if (username.length > 20 || password.length > 20) {
+        res.status(400).send('Username and password must be at most 20 characters long');
+        return;
+    }
+
     DatabaseConnector.addNewUserToDatabase(username, password, (err, access_token) => {
         if (err) {
             res.status(500).send(`Error registering user ${username}`);
