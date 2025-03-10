@@ -9,7 +9,9 @@ DatabaseConnector.connectToDatabase();
 
 app.use(express.json());
 
-// ALL GPT ENDPOINTS
+// Endpoint for handling chat requests to the GPT model
+// Input: { message: string, GradeLevelPrompt: string } in the body, authentication token in the headers
+// Output: Streamed response from the GPT model
 app.post('/LLM/chat', async (req, res) => {
     const { message, GradeLevelPrompt } = req.body;
     const { authentication } = req.headers; 
@@ -48,7 +50,9 @@ app.post('/LLM/chat', async (req, res) => {
 
 });
 
-// ALL DATABASE AND ACCOUNT ENDPOINTS
+// Endpoint for registering a new user
+// Input: { username: string, password: string } in the body
+// Output: Access token if registration is successful
 app.post('/account/register', async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) {
@@ -74,6 +78,9 @@ app.post('/account/register', async (req, res) => {
     });
 });
 
+// Endpoint for logging in a user
+// Input: { username: string, password: string } in the body
+// Output: Access token if login is successful
 app.post('/account/login', async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) {
@@ -93,6 +100,9 @@ app.post('/account/login', async (req, res) => {
     });
 });
 
+// Endpoint for getting the response history of a user
+// Input: Authentication token in the headers
+// Output: Response history of the user
 app.get('/account/responsehistory', async (req, res) => {
     const { authentication } = req.headers;
     if (!authentication) {
@@ -115,6 +125,9 @@ app.get('/account/responsehistory', async (req, res) => {
     });
 });
 
+// Endpoint for adding a response to the user's response history
+// Input: { response: string } in the body, authentication token in the headers
+// Output: Success message if response is added successfully
 app.post('/account/addresponse', async (req, res) => {
     const { authentication } = req.headers;
     const { response } = req.body;
@@ -138,6 +151,9 @@ app.post('/account/addresponse', async (req, res) => {
     });
 }); 
 
+// Endpoint for removing a response from the user's response history
+// Input: { response: string } in the body, authentication token in the headers
+// Output: Success message if response is removed successfully
 app.delete('/account/removereponse', async (req, res) => {
     const { authentication } = req.headers;
     const { response } = req.body;
@@ -161,6 +177,9 @@ app.delete('/account/removereponse', async (req, res) => {
     });
 });
 
+// Endpoint for checking if a user is logged in
+// Input: Authentication token in the headers
+// Output: Username if the user is logged in
 app.post('/account/isloggedin', async (req, res) => {
     const { authentication } = req.headers;
     if (!authentication) {
