@@ -12,6 +12,7 @@ app.use(express.json());
 // ALL GPT ENDPOINTS
 app.post('/LLM/chat', async (req, res) => {
     const { message, GradeLevelPrompt } = req.body;
+    const { authentication } = req.headers; 
     if (!message || !GradeLevelPrompt) {
         res.status(400).send('No message or grade level prompt provided');
         return;
@@ -22,13 +23,29 @@ app.post('/LLM/chat', async (req, res) => {
         return;
     }
 
+    let completeResponse = '';
     res.setHeader('Content-Type', 'text/plain');
     
     for await (const stream of ChatGPTConnector.GPTstreamingRequest(message, GradeLevelPrompt)) {
         res.write(stream);
+        completeResponse += stream;
     }
     
     res.end();
+
+    if (authentication) {
+        DatabaseConnector.verifyToken(authentication, (err, decoded) => {
+            if (err) {
+                return;
+            }
+            DatabaseConnector.addResponseToDatabase(decoded.username, completeResponse, (err, results) => {
+                if (err) {
+                    return;
+                }
+            });
+        });
+    }
+
 });
 
 // ALL DATABASE AND ACCOUNT ENDPOINTS
