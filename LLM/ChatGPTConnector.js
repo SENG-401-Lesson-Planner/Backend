@@ -21,7 +21,7 @@ const ChatGPTConnector = {
         const stream = await openai.chat.completions.create({
             model: GPTmodel,
             messages: messages,
-            max_tokens: 500, // if the user has a message over 500 tokens they should be cut off
+            max_tokens: 1000, // if the user has a message over 500 tokens they should be cut off
             store: true, // By setting store to true, we can later tweak our model based on the feedback we receive
             stream: true,
             metadata: {
