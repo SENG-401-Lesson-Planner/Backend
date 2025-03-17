@@ -1,7 +1,7 @@
 import express from 'express';
 import ChatGPTConnector from './LLM/ChatGPTConnector.js';
 import DatabaseConnector from './Database/DatabaseConnector.js';
-import { appendPreprompt } from './LLM/GPTPreprompt.js';
+import { appendPreprompt } from './LLM/GPTPrompt.js';
 
 const app = express();
 const port = 3000;
