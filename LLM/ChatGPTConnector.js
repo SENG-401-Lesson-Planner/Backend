@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import dotenv from 'dotenv';
-import GPTPreprompt from './GPTPreprompt.js';
+import { GeneralPrompt, GradeLevelPrompt, SubjectPrompt, LessonLengthPrompt } from './GPTPrompt.js';
 
 dotenv.config();
 
@@ -16,19 +16,39 @@ const openai = new OpenAI({
 });
 
 const ChatGPTConnector = {
-    async *GPTstreamingRequest(message, GradeLevel) {
+    async *GPTstreamingRequest(message, gradeLevel, subject, timeLength) {
+        const messages = this.generatePromptMessages(message, gradeLevel, subject, timeLength);
         const stream = await openai.chat.completions.create({
             model: GPTmodel,
-            messages: [{ role: "system", content: GPTPreprompt[GradeLevel]}, { role: "user", content: message }],
+            messages: messages,
+            max_tokens: 1000, // if the user has a message over 500 tokens they should be cut off
             store: true, // By setting store to true, we can later tweak our model based on the feedback we receive
             stream: true,
             metadata: {
-                GradeLevelPrompt: GradeLevel,
+                GradeLevelPrompt: gradeLevel,
+                SubjectPrompt: subject,
+                LessonLength: timeLength,
             },
         });
         for await (const chunk of stream) {
             yield chunk.choices[0]?.delta?.content || "";
         }
+    },
+
+    generatePromptMessages(message, gradeLevel, subject, timeLength) {
+        const messages = [];
+        messages.push({ role: "system", content: GeneralPrompt });
+        if (gradeLevel) {
+            messages.push({ role: "system", content: GradeLevelPrompt(gradeLevel) });
+        }
+        if (subject) {
+            messages.push({ role: "system", content: SubjectPrompt(subject) });
+        }
+        if (timeLength) {
+            messages.push({ role: "system", content: LessonLengthPrompt(timeLength) });
+        }
+        messages.push({ role: "user", content: message });
+        return messages;
     }
 };
 

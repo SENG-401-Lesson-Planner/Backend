@@ -1,8 +1,6 @@
 import express from 'express';
 import ChatGPTConnector from './LLM/ChatGPTConnector.js';
 import DatabaseConnector from './Database/DatabaseConnector.js';
-import GPTPreprompt from './LLM/GPTPreprompt.js';
-
 const app = express();
 const port = 3000;
 DatabaseConnector.connectToDatabase();
@@ -10,25 +8,20 @@ DatabaseConnector.connectToDatabase();
 app.use(express.json());
 
 // Endpoint for handling chat requests to the GPT model
-// Input: { message: string, GradeLevelPrompt: string } in the body, authentication token in the headers
+// Input: { message: string, GradeLevelPrompt: string, SubjectPrompt: string } in the body, authentication token in the headers
 // Output: Streamed response from the GPT model
 app.post('/LLM/chat', async (req, res) => {
-    const { message, GradeLevelPrompt } = req.body;
+    const { message, GradeLevelPrompt, SubjectPrompt, LessonLength } = req.body;
     const { authentication } = req.headers; 
     if (!message || !GradeLevelPrompt) {
-        res.status(400).send('No message or grade level prompt provided');
-        return;
-    }
-
-    if (!Object.keys(GPTPreprompt).includes(GradeLevelPrompt)) {
-        res.status(400).send('Invalid grade level prompt');
+        res.status(400).send('No message prompt provided');
         return;
     }
 
     let completeResponse = '';
     res.setHeader('Content-Type', 'text/plain');
     
-    for await (const stream of ChatGPTConnector.GPTstreamingRequest(message, GradeLevelPrompt)) {
+    for await (const stream of ChatGPTConnector.GPTstreamingRequest(message, GradeLevelPrompt, SubjectPrompt, LessonLength)) {
         res.write(stream);
         completeResponse += stream;
     }
