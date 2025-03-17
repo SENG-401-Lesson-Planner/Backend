@@ -4,9 +4,9 @@ import ChatGPTConnector from './LLM/ChatGPTConnector.js';
 import DatabaseConnector from './Database/DatabaseConnector.js';
 const app = express();
 const port = 3000;
-const messageRegex = /^[A-Za-z0-9 \n.,!?'"()\-#$&*]+$/;
-const usernameRegex = /^[A-Za-z0-9]+$/;
-const passwordRegex = /^[A-Za-z0-9!?@#$&*]+$/;
+const messageRegex = /^[A-Za-z0-9 \n.,!?'":;()\-#$&*]+$/; // if this is failed, i donno what they were doing
+const usernameRegex = /^[A-Za-z0-9]+$/; // you can show the users this message.
+const passwordRegex = /^[A-Za-z0-9!?@#$&*]+$/; // you can show the users this message.
 DatabaseConnector.connectToDatabase();
 
 app.use(express.json());
@@ -65,8 +65,13 @@ app.post('/account/register', async (req, res) => {
         return;
     }
 
-    if (!usernameRegex.test(username) || !passwordRegex.test(password)) {
-        res.status(400).send('Invalid characters in input');
+    if (!usernameRegex.test(username)) {
+        res.status(400).send('Username must only contain letters and numbers');
+        return;
+    }
+
+    if (!passwordRegex.test(password)) {
+        res.status(400).send('Password must only contain letters, numbers, and special characters !?@#$&*');
         return;
     }
     
@@ -99,7 +104,7 @@ app.post('/account/login', async (req, res) => {
     }
 
     if (!usernameRegex.test(username) || !passwordRegex.test(password)) {
-        res.status(400).send('Invalid characters in input');
+        res.status(401).send('Invalid username or password'); // if they could not register, they are not in the db
     }
     
     DatabaseConnector.loginToDatabase(username, password, (err, access_token) => {
