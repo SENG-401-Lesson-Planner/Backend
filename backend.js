@@ -1,11 +1,14 @@
 import express from 'express';
+import cors from 'cors'; // Import the cors package
 import ChatGPTConnector from './LLM/ChatGPTConnector.js';
 import DatabaseConnector from './Database/DatabaseConnector.js';
 const app = express();
 const port = 3000;
+const inputRegex = /^[A-Za-z0-9 \n]+$/;
 DatabaseConnector.connectToDatabase();
 
 app.use(express.json());
+app.use(cors());
 
 // Endpoint for handling chat requests to the GPT model
 // Input: { message: string, GradeLevelPrompt: string, SubjectPrompt: string } in the body, authentication token in the headers
@@ -17,6 +20,13 @@ app.post('/LLM/chat', async (req, res) => {
         res.status(400).send('No message prompt provided');
         return;
     }
+
+    if (!inputRegex.test(message) || !inputRegex.test(GradeLevelPrompt) || (SubjectPrompt && !inputRegex.test(SubjectPrompt)) || (LessonLength && !inputRegex.test(LessonLength))) {
+        res.status(400).send('Invalid characters in input');
+        return;
+    }
+
+    console.log(`Received message ${message}`);
 
     let completeResponse = '';
     res.setHeader('Content-Type', 'text/plain');
@@ -52,6 +62,11 @@ app.post('/account/register', async (req, res) => {
         res.status(400).send('Username or password not provided');
         return;
     }
+
+    if (!inputRegex.test(username) || !inputRegex.test(password)) {
+        res.status(400).send('Invalid characters in input');
+        return;
+    }
     
     if (username.length < 4 || password.length < 4) {
         res.status(400).send('Username and password must be at least 4 characters long');
@@ -80,6 +95,11 @@ app.post('/account/login', async (req, res) => {
         res.status(400).send('Username or password not provided');
         return;
     }
+
+    if (!inputRegex.test(username) || !inputRegex.test(password)) {
+        res.status(400).send('Invalid characters in input');
+    }
+
     DatabaseConnector.loginToDatabase(username, password, (err, access_token) => {
         if (err) {
             res.status(500).send('Error logging in');
