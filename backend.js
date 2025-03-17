@@ -215,16 +215,6 @@ app.post('/account/isloggedin', async (req, res) => {
     });
 });
 
-app.get('/', (req, res) => {
-    res.send(`
-        <html>
-            <body>
-                <img src="https://images3.alphacoders.com/858/thumb-1920-858935.jpg">
-            </body>
-        </html>
-    `);
-});
-
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
