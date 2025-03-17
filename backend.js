@@ -4,9 +4,9 @@ import ChatGPTConnector from './LLM/ChatGPTConnector.js';
 import DatabaseConnector from './Database/DatabaseConnector.js';
 const app = express();
 const port = 3000;
-const messageRegex = /^[A-Za-z0-9 \n.,!?'":;()\-#$&*]+$/; // if this is failed, i donno what they were doing
-const usernameRegex = /^[A-Za-z0-9]+$/; // you can show the users this message.
-const passwordRegex = /^[A-Za-z0-9!?@#$&*]+$/; // you can show the users this message.
+const messageRegex = /^[A-Za-z0-9 \n.,!?'":;()\-#$&*]+$/;
+const usernameRegex = /^[A-Za-z0-9]+$/; 
+const passwordRegex = /^[A-Za-z0-9!?@#$&*]+$/;
 DatabaseConnector.connectToDatabase();
 
 app.use(express.json());
@@ -24,7 +24,7 @@ app.post('/LLM/chat', async (req, res) => {
     }
 
     if (!messageRegex.test(message) || !messageRegex.test(GradeLevelPrompt) || (SubjectPrompt && !messageRegex.test(SubjectPrompt)) || (LessonLength && !messageRegex.test(LessonLength))) {
-        res.status(400).send('Invalid characters in input');
+        res.status(400).send('Invalid message prompt');
         return;
     }
 
