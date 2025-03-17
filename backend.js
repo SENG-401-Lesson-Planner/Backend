@@ -1,11 +1,16 @@
 import express from 'express';
+import cors from 'cors'; // Import the cors package
 import ChatGPTConnector from './LLM/ChatGPTConnector.js';
 import DatabaseConnector from './Database/DatabaseConnector.js';
 const app = express();
 const port = 3000;
+const messageRegex = /^[A-Za-z0-9 \n.,!?'":;()\-#$&*]+$/;
+const usernameRegex = /^[A-Za-z0-9]+$/; 
+const passwordRegex = /^[A-Za-z0-9!?@#$&*]+$/;
 DatabaseConnector.connectToDatabase();
 
 app.use(express.json());
+app.use(cors());
 
 // Endpoint for handling chat requests to the GPT model
 // Input: { message: string, GradeLevelPrompt: string, SubjectPrompt: string } in the body, authentication token in the headers
@@ -17,6 +22,13 @@ app.post('/LLM/chat', async (req, res) => {
         res.status(400).send('No message prompt provided');
         return;
     }
+
+    if (!messageRegex.test(message) || !messageRegex.test(GradeLevelPrompt) || (SubjectPrompt && !messageRegex.test(SubjectPrompt)) || (LessonLength && !messageRegex.test(LessonLength))) {
+        res.status(400).send('Invalid message prompt');
+        return;
+    }
+
+    console.log(`Received message ${message}`);
 
     let completeResponse = '';
     res.setHeader('Content-Type', 'text/plain');
@@ -52,6 +64,16 @@ app.post('/account/register', async (req, res) => {
         res.status(400).send('Username or password not provided');
         return;
     }
+
+    if (!usernameRegex.test(username)) {
+        res.status(400).send('Username must only contain letters and numbers');
+        return;
+    }
+
+    if (!passwordRegex.test(password)) {
+        res.status(400).send('Password must only contain letters, numbers, and special characters !?@#$&*');
+        return;
+    }
     
     if (username.length < 4 || password.length < 4) {
         res.status(400).send('Username and password must be at least 4 characters long');
@@ -80,6 +102,11 @@ app.post('/account/login', async (req, res) => {
         res.status(400).send('Username or password not provided');
         return;
     }
+
+    if (!usernameRegex.test(username) || !passwordRegex.test(password)) {
+        res.status(401).send('Invalid username or password'); // if they could not register, they are not in the db
+    }
+    
     DatabaseConnector.loginToDatabase(username, password, (err, access_token) => {
         if (err) {
             res.status(500).send('Error logging in');
@@ -186,6 +213,16 @@ app.post('/account/isloggedin', async (req, res) => {
         }
         res.status(200).send(decoded.username);
     });
+});
+
+app.get('/', (req, res) => {
+    res.send(`
+        <html>
+            <body>
+                <img src="https://images3.alphacoders.com/858/thumb-1920-858935.jpg">
+            </body>
+        </html>
+    `);
 });
 
 app.listen(port, () => {
