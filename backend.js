@@ -4,7 +4,9 @@ import ChatGPTConnector from './LLM/ChatGPTConnector.js';
 import DatabaseConnector from './Database/DatabaseConnector.js';
 const app = express();
 const port = 3000;
-const inputRegex = /^[A-Za-z0-9 \n]+$/;
+const messageRegex = /^[A-Za-z0-9 \n.,!?'"()\-#$&*]+$/;
+const usernameRegex = /^[A-Za-z0-9]+$/;
+const passwordRegex = /^[A-Za-z0-9!?@#$&*]+$/;
 DatabaseConnector.connectToDatabase();
 
 app.use(express.json());
@@ -21,7 +23,7 @@ app.post('/LLM/chat', async (req, res) => {
         return;
     }
 
-    if (!inputRegex.test(message) || !inputRegex.test(GradeLevelPrompt) || (SubjectPrompt && !inputRegex.test(SubjectPrompt)) || (LessonLength && !inputRegex.test(LessonLength))) {
+    if (!messageRegex.test(message) || !messageRegex.test(GradeLevelPrompt) || (SubjectPrompt && !messageRegex.test(SubjectPrompt)) || (LessonLength && !messageRegex.test(LessonLength))) {
         res.status(400).send('Invalid characters in input');
         return;
     }
@@ -63,7 +65,7 @@ app.post('/account/register', async (req, res) => {
         return;
     }
 
-    if (!inputRegex.test(username) || !inputRegex.test(password)) {
+    if (!usernameRegex.test(username) || !passwordRegex.test(password)) {
         res.status(400).send('Invalid characters in input');
         return;
     }
@@ -96,10 +98,10 @@ app.post('/account/login', async (req, res) => {
         return;
     }
 
-    if (!inputRegex.test(username) || !inputRegex.test(password)) {
+    if (!usernameRegex.test(username) || !passwordRegex.test(password)) {
         res.status(400).send('Invalid characters in input');
     }
-
+    
     DatabaseConnector.loginToDatabase(username, password, (err, access_token) => {
         if (err) {
             res.status(500).send('Error logging in');
@@ -206,6 +208,16 @@ app.post('/account/isloggedin', async (req, res) => {
         }
         res.status(200).send(decoded.username);
     });
+});
+
+app.get('/', (req, res) => {
+    res.send(`
+        <html>
+            <body>
+                <img src="https://images3.alphacoders.com/858/thumb-1920-858935.jpg">
+            </body>
+        </html>
+    `);
 });
 
 app.listen(port, () => {
