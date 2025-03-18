@@ -31,7 +31,7 @@ app.post('/LLM/chat', async (req, res) => {
     console.log(`Received message ${message}`);
 
     let completeResponse = '';
-    res.setHeader('Content-Type', 'text/plain');
+    res.setHeader('Transfer-Encoding', 'chunked');
     
     for await (const stream of ChatGPTConnector.GPTstreamingRequest(message, GradeLevelPrompt, SubjectPrompt, LessonLength)) {
         res.write(stream);
@@ -213,6 +213,16 @@ app.post('/account/isloggedin', async (req, res) => {
         }
         res.status(200).send(decoded.username);
     });
+});
+
+app.get('/', (req, res) => {
+    res.send(`
+        <html>
+            <body style="margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center;">
+                <img src="https://images3.alphacoders.com/858/thumb-1920-858935.jpg" style="width: 100%; height: 100%; object-fit: cover;">
+            </body>
+        </html>
+    `);
 });
 
 app.listen(port, () => {

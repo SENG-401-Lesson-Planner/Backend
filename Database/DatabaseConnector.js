@@ -6,14 +6,14 @@ import jwt from 'jsonwebtoken';
 dotenv.config();
 
 // Load environment variables
-const DB_HOST = process.env.DB_HOST;
+const DB_INSTANCE_CONNECTION_NAME = process.env.DB_INSTANCE_CONNECTION_NAME;
 const DB_USER = process.env.DB_USER;
 const DB_PASSWORD = process.env.DB_PASSWORD;
 const DB_DATABASE = process.env.DB_DATABASE;
 const JWT_SECRET = process.env.JWT_SECRET;
 
 const connection = mysql.createConnection({
-    host: DB_HOST,
+    socketPath: `/cloudsql/${DB_INSTANCE_CONNECTION_NAME}`,
     user: DB_USER,
     password: DB_PASSWORD,
     database: DB_DATABASE,
