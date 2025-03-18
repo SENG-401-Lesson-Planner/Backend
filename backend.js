@@ -11,7 +11,6 @@ const allowedOrigins = ['http://localhost:5173','https://lesso.help/']
 DatabaseConnector.connectToDatabase();
 
 app.use(express.json());
-app.use(cors());
 
 app.use(cors({
     origin: function (origin, callback) {
