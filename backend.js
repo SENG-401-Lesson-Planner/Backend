@@ -20,9 +20,19 @@ app.use(cors({
             callback(new Error('CORS policy error: Origin not allowed'));
         }
     },
-    methods: 'GET, POST, DELETE',
+    methods: 'GET, POST, DELETE, OPTIONS',
     allowedHeaders: ['Content-Type', 'Authorization', 'Authentication'],
     credentials: true 
+}));
+
+app.options('*', cors({
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('CORS policy error: Origin not allowed'));
+        }
+    }
 }));
 
 // Endpoint for handling chat requests to the GPT model
