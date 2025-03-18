@@ -7,10 +7,24 @@ const port = 3000;
 const messageRegex = /^[A-Za-z0-9 \n.,!?'":;()\-#$&*]+$/;
 const usernameRegex = /^[A-Za-z0-9]+$/; 
 const passwordRegex = /^[A-Za-z0-9!?@#$&*]+$/;
+const allowedOrigins = ['http://localhost:5173','https://lesso.help/']
 DatabaseConnector.connectToDatabase();
 
 app.use(express.json());
 app.use(cors());
+
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('CORS policy error: Origin not allowed'));
+        }
+    },
+    methods: 'GET, POST, DELETE',
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true 
+}));
 
 // Endpoint for handling chat requests to the GPT model
 // Input: { message: string, GradeLevelPrompt: string, SubjectPrompt: string } in the body, authentication token in the headers
