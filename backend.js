@@ -71,7 +71,9 @@ app.post('/LLM/chat', async (req, res) => {
             if (err) {
                 return;
             }
-            DatabaseConnector.addResponseToDatabase(decoded.username, completeResponse, (err, results) => {
+            let username = decoded.username;
+            console.log(`Adding response to database for user ${username}`);
+            DatabaseConnector.addResponseToDatabase(username, completeResponse, (err, results) => {
                 if (err) {
                     return;
                 }
