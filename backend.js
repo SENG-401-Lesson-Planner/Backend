@@ -7,7 +7,7 @@ const port = 3000;
 const messageRegex = /^[A-Za-z0-9 \n.,!?'":;()\-#$&*]+$/;
 const usernameRegex = /^[A-Za-z0-9]+$/; 
 const passwordRegex = /^[A-Za-z0-9!?@#$&*]+$/;
-const allowedOrigins = ['http://localhost:5173','https://lesso.help/', 'https://api.lesso.help/'];
+const allowedOrigins = ['http://localhost:5173','https://lesso.help', 'https://api.lesso.help'];
 DatabaseConnector.connectToDatabase();
 
 app.use(express.json());
