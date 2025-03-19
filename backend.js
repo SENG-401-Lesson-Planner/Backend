@@ -7,7 +7,7 @@ const port = 3000;
 const messageRegex = /^[A-Za-z0-9 \n.,!?'":;()\-#$&*]+$/;
 const usernameRegex = /^[A-Za-z0-9]+$/; 
 const passwordRegex = /^[A-Za-z0-9!?@#$&*]+$/;
-const allowedOrigins = ['http://localhost:5173','https://lesso.help/']
+const allowedOrigins = ['http://localhost:5173','https://lesso.help/', 'https://api.lesso.help/'];
 DatabaseConnector.connectToDatabase();
 
 app.use(express.json());
@@ -25,18 +25,15 @@ app.use(cors({
     credentials: true
 }));
 
-app.options('*', (req, res) => {
-    const origin = req.headers.origin;
-    if (!origin || allowedOrigins.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', origin || '*');
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Authentication');
-        res.setHeader('Access-Control-Allow-Credentials', 'true');
-        res.status(204).end();
-    } else {
-        res.status(403).send('CORS policy error: Origin not allowed');
+app.options('*', cors({
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('CORS policy error: Origin not allowed'));
+        }
     }
-});
+}));
 
 // Endpoint for handling chat requests to the GPT model
 // Input: { message: string, GradeLevelPrompt: string, SubjectPrompt: string } in the body, authentication token in the headers
@@ -71,7 +68,9 @@ app.post('/LLM/chat', async (req, res) => {
             if (err) {
                 return;
             }
-            DatabaseConnector.addResponseToDatabase(decoded.username, completeResponse, (err, results) => {
+            let username = decoded.username;
+            console.log(`Adding response to database for user ${username}`);
+            DatabaseConnector.addResponseToDatabase(username, completeResponse, (err, results) => {
                 if (err) {
                     return;
                 }
