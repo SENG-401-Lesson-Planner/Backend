@@ -21,19 +21,22 @@ app.use(cors({
         }
     },
     methods: 'GET, POST, DELETE, OPTIONS',
-    allowedHeaders: ['Content-Type', 'Authorization', 'Authentication'],
+    allowedHeaders: ['Content-Type', 'Authentication'],
     credentials: true 
 }));
 
-app.options('*', cors({
-    origin: function (origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('CORS policy error: Origin not allowed'));
-        }
+app.options('*', (req, res) => {
+    const origin = req.headers.origin;
+    if (!origin || allowedOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin || '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Authentication');
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+        res.status(204).end();
+    } else {
+        res.status(403).send('CORS policy error: Origin not allowed');
     }
-}));
+});
 
 // Endpoint for handling chat requests to the GPT model
 // Input: { message: string, GradeLevelPrompt: string, SubjectPrompt: string } in the body, authentication token in the headers
