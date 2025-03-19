@@ -21,7 +21,7 @@ app.use(cors({
         }
     },
     methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Authentication'],
+    allowedHeaders: ['Content-Type', 'Authentication'],
     credentials: true
 }));
 
