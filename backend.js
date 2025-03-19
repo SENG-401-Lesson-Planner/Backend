@@ -20,9 +20,9 @@ app.use(cors({
             callback(new Error('CORS policy error: Origin not allowed'));
         }
     },
-    methods: 'GET, POST, DELETE, OPTIONS',
+    methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authentication'],
-    credentials: true 
+    credentials: true
 }));
 
 app.options('*', (req, res) => {
