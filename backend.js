@@ -39,7 +39,7 @@ app.options('*', cors({
 // Input: { message: string, GradeLevelPrompt: string, SubjectPrompt: string } in the body, authentication token in the headers
 // Output: Streamed response from the GPT model
 app.post('/LLM/chat', async (req, res) => {
-        const { authentication } = req.headers; 
+    const { authentication } = req.headers; 
     const { message, GradeLevelPrompt, SubjectPrompt, LessonLength } = req.body;
     if (!message || !GradeLevelPrompt) {
         res.status(400).send('No message prompt provided');
