@@ -18,5 +18,5 @@ export function SubjectPrompt(subject) {
 }
 
 export function LessonLengthPrompt(timeLength) {
-    return `The lesson plan should be designed to last exactly ${timeLength} minutes. The included activities should be properly balanced for the time length.`;
+    return `The total length of the lesson plan should be designed to last exactly ${timeLength} minutes. The included activities should be properly balanced for the time length.`;
 }
