@@ -4,7 +4,7 @@ import ChatGPTConnector from './LLM/ChatGPTConnector.js';
 import DatabaseConnector from './Database/DatabaseConnector.js';
 const app = express();
 const port = 3000;
-const messageRegex = /^[A-Za-z0-9 \n.,!?'":;()\-#$&*]+=$/;
+const messageRegex = /^[A-Za-z0-9 \n.,!?+='":;()\-#$&*]+$/;
 const usernameRegex = /^[A-Za-z0-9]+$/; 
 const passwordRegex = /^[A-Za-z0-9!?@#$&*]+$/;
 const allowedOrigins = ['http://localhost:5173','https://lesso.help', 'https://api.lesso.help'];
@@ -39,7 +39,7 @@ app.options('*', cors({
 // Input: { message: string, GradeLevelPrompt: string, SubjectPrompt: string } in the body, authentication token in the headers
 // Output: Streamed response from the GPT model
 app.post('/LLM/chat', async (req, res) => {
-    const { authentication } = req.headers; 
+        const { authentication } = req.headers; 
     const { message, GradeLevelPrompt, SubjectPrompt, LessonLength } = req.body;
     if (!message || !GradeLevelPrompt) {
         res.status(400).send('No message prompt provided');
