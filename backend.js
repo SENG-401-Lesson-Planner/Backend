@@ -241,6 +241,12 @@ app.post('/account/isloggedin', async (req, res) => {
     });
 });
 
+// prevent web crawlers from indexing the site
+app.get(/robots.txt/, (req, res) => {
+    res.type('text/plain');
+    res.send('User-agent: *\nDisallow: /');
+});
+
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
