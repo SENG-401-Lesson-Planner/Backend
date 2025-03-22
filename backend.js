@@ -4,7 +4,7 @@ import ChatGPTConnector from './LLM/ChatGPTConnector.js';
 import DatabaseConnector from './Database/DatabaseConnector.js';
 const app = express();
 const port = 3000;
-const messageRegex = /^[A-Za-z0-9 \n.,!?'":;()\-#$&*]+=$/;
+const messageRegex = /^[A-Za-z0-9 \n.,!?+='":;()\-#$&*]+$/;
 const usernameRegex = /^[A-Za-z0-9]+$/; 
 const passwordRegex = /^[A-Za-z0-9!?@#$&*]+$/;
 const allowedOrigins = ['http://localhost:5173','https://lesso.help', 'https://api.lesso.help'];
